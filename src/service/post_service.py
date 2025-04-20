@@ -29,11 +29,20 @@ class PostService:
         return PostResponse.model_validate(post_from_db)
 
 
-    async def update_post(self, post_id: int, post: BasePost) -> PostResponse:
-        post_from_db = await self._post_dao.update_record(values=post, filters={"id": post_id})
+    async def update_post(self, user_id: int, post_id: int, post: BasePost) -> PostResponse:
+        post_exists = await self._post_dao.check_existence(post_id=post_id)
+        if not post_exists:
+            raise ValueError("Пост не найден")
+        post_from_db = await self._post_dao.update_record(values=post, filters={"id": post_id, "user_id": user_id})
+        if not post_from_db:
+            raise ValueError("Запрещенное действие")
         return PostResponse.model_validate(post_from_db)
 
-    async def delete_post(self, post_id: int) -> None:
-        post_deleted = await self._post_dao.delete_records(filters={"id": post_id})
-        if post_deleted > 1:
-            raise ValueError("Удалено много постов")
+
+    async def delete_post(self, post_id: int, user_id: int) -> None:
+        post_exists = await self._post_dao.check_existence(post_id=post_id)
+        if not post_exists:
+            raise ValueError("Пост не найден")
+        post_deleted = await self._post_dao.delete_records(filters={"id": post_id, "user_id": user_id})
+        if post_deleted < 1:
+            raise ValueError("Запрещенное действие")

@@ -22,5 +22,9 @@ class Settings(BaseSettings):
             f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASSWORD}@"
             f"{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
         )
+    
+    @property
+    def auth_data(self) -> dict:
+        return {"secret_key": settings.SECRET_KEY, "algorithm": settings.ALGORITHM}
 
 settings = Settings()

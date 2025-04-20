@@ -1,7 +1,7 @@
-import re
 from typing import Self
+import re
 
-from pydantic import BaseModel, Field, EmailStr, field_validator, model_validator, ConfigDict
+from pydantic import BaseModel, Field, EmailStr, ConfigDict, field_validator, model_validator
 
 from schemas.post_schema import PostResponse
 
@@ -23,16 +23,17 @@ class UserWithPosts(UserResponse):
     posts: list[PostResponse] = Field(default_factory=list)
 
 
-class UserLogin(BaseModel):  # вход
-    email: EmailStr = Field(default=None)
-    password: str = Field(default=..., min_length=8, max_length=50)
+class ChangeUsername(BaseModel):
+    username: str = Field(...)
 
 
-class UserRegister(BaseUser):  # регистрация
-    password: str = Field(default=..., min_length=8, max_length=50)
+class ChangePassword(BaseModel):
+    password: str = Field(..., min_length=8, max_length=50, exclude=True)
+    new_password: str = Field(default=..., min_length=8, max_length=50)
     confirm_password: str = Field(default=..., min_length=8, max_length=50, exclude=True)
 
-    @field_validator("password", mode="before")
+
+    @field_validator("new_password", mode="before")
     @classmethod
     def validate_password(cls, value) -> str:
         if re.search(r"(?=.*\d)(?=.*\W)(?=.*[a-zA-Z])", value) is None:
@@ -41,21 +42,13 @@ class UserRegister(BaseUser):  # регистрация
             )
         return value
     
-    @field_validator("username", mode="before")
-    @classmethod
-    def check_username(cls, value) -> str: 
-        value = value.strip()
-        if " " in value:
-            raise ValueError("Имя пользователя не должно содержать пробелов")
-        return value
     
     @model_validator(mode="after")
     def check_password(self) -> Self:
-        if self.password != self.confirm_password:
+        if self.new_password != self.confirm_password:
             raise  ValueError('Пароли не совпадают')
         return self
+    
 
-
-class UserSave(BaseUser):
-    is_active: bool = Field(default=...)
-    password: str = Field(default=..., min_length=8, max_length=50)
+class UserUpdate(BaseModel):
+    password: str = Field(...)

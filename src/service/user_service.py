@@ -1,13 +1,15 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from schemas.user_schema import (
+    ChangePassword,
     UserResponse,
     UserWithPosts,
-    UserSave,
-    UserRegister
+    ChangeUsername,
+    UserUpdate
 )
 from db.models import User
 from dao.user_dao import UserDAO
+from auth.utils import verify_password, create_password_hash
 
 
 class UserService:
@@ -15,15 +17,8 @@ class UserService:
         self._user_dao = UserDAO(session)
 
 
-    async def create_user(self, user: UserRegister) -> UserResponse:
-        user_dict = user.model_dump()
-        user_dict.pop("confirm_password", None)
-        user_dict["is_active"] = True
-        new_user = await self._user_dao.add_one_record(values=UserSave(**user_dict))
-        return UserResponse.model_validate(new_user)
-
-
     async def get_user(self, user_id: int) -> UserResponse:
+        """Возвращает пользователя по id"""
         user_from_db: User = await self._user_dao.find_one_or_none_by_id(data_id=user_id)
         if user_from_db.is_active:
             return UserResponse.model_validate(user_from_db)
@@ -43,6 +38,24 @@ class UserService:
         users_from_db = await self._user_dao.find_all_by_filters(filters={"is_active": True}) 
         return [UserResponse.model_validate(user) for user in users_from_db]
 
+
+    async def update_username(self, user_id: int, data: ChangeUsername) -> UserResponse:
+        """Обновляет username пользователя"""
+        user_from_db = await self._user_dao.update_record(values=data, filters={"id": user_id})
+        return UserResponse.model_validate(user_from_db)
+
+
+    async def change_password(self, user_id: int, data: ChangePassword) -> dict[str, str]:
+        """Осуществляет смену пароля"""
+        user_from_db = await self._user_dao.find_one_or_none_by_id(data_id=user_id)
+        if not user_from_db or not verify_password(data.password, user_from_db.password) or not user_from_db.is_active:
+            raise ValueError("Неверный email или пароль")
+
+        user_from_db = await self._user_dao.update_record(
+            values=UserUpdate(password=create_password_hash(password=data.new_password)), filters={"id": user_id}
+        )
+        return UserResponse.model_validate(user_from_db)
+        
 
     async def deactive_user(self, user_id: int) -> None:
         """Делает пользователя неактивным"""

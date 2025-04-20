@@ -9,9 +9,6 @@ from db.models import User, Post
 class UserDAO(BaseDAO):
     model = User
 
-    def __init__(self, session):
-        super().__init__(session)
-
     async def deactive_user(self, user_id: int) -> tuple[int, int]:
         try:
             stmt_1 = update(self.model).where(self.model.id == user_id).values(is_active = False)

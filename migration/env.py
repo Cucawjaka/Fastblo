@@ -9,6 +9,7 @@ from alembic import context
 
 from src.db.base import Base, DATABASE_URL
 from src.db.models import Post, User
+from src.auth.models import Token
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
