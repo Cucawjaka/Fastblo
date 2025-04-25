@@ -37,7 +37,7 @@ class ChangePassword(BaseModel):
     @classmethod
     def validate_password(cls, value) -> str:
         if re.search(r"(?=.*\d)(?=.*\W)(?=.*[a-zA-Z])", value) is None:
-            raise ValueError(
+            raise Val(
                 "Пароль должен содержать хотя бы одну цифру и специальный символ"
             )
         return value

@@ -4,6 +4,7 @@ from fastapi import Depends, Request
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from errors.service_exeptions import PermissionDenied
 from dependencies.dao_dep import get_session_with_commit
 from .service import AuthService
 
@@ -19,7 +20,7 @@ def verify_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> dict:
 
 def check_owner(user_id: int, current_user: Annotated[dict, Depends(verify_current_user)]) -> None:
     if user_id != current_user["sub"]:
-        raise ValueError("Нет прав")
+        raise PermissionDenied(msg="Запрещенное действие")
     
 
 def get_refresh_token(request: Request) -> str:

@@ -22,6 +22,12 @@ async def get_all_users(
     return users
 
 
+@router.get("/me", response_model=UserResponse)
+async def get_me(user_service: Annotated[UserService, Depends(get_user_service_without_commit)], payload: Annotated[dict, Depends(verify_current_user)]):
+    user = await user_service.get_user_by_id(user_id=payload["sub"])
+    return user
+
+
 @router.get("/{user_id}/posts", response_model=UserWithPosts)
 async def get_user_with_posts(
     user_id: int,
@@ -37,7 +43,7 @@ async def get_user_without_posts(
     user_id: int,
     user_service: Annotated[UserService, Depends(get_user_service_without_commit)],
 ):
-    user = await user_service.get_user(user_id=user_id)
+    user = await user_service.get_user_by_id(user_id=user_id)
     return user
 
 

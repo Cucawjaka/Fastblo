@@ -1,12 +1,13 @@
 from typing import Generic, TypeVar
 
+from asyncpg.exceptions import UniqueViolationError
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy import select, update, delete, insert
+from sqlalchemy.exc import SQLAlchemyError, IntegrityError
+from sqlalchemy import select, update, delete, insert, exists
 
 from db.base import Base
-
+from errors.data_exeptions import NotFoundError, Duplicate, TransactionError
 
 T = TypeVar("T", bound=Base)
 
@@ -24,9 +25,11 @@ class BaseDAO(Generic[T]):
             stmt = select(self.model).filter_by(id=data_id)
             result = await self._session.execute(stmt)
             record = result.scalar_one_or_none()
+            if record is None:
+                raise NotFoundError(msg=f"{self.model.__name__} not found ")
             return record
         except SQLAlchemyError as e:
-            raise
+            raise TransactionError()
 
 
     async def find_one_or_none(self, filters: dict = {}) -> T:
@@ -34,9 +37,11 @@ class BaseDAO(Generic[T]):
             stmt = select(self.model).filter_by(**filters)
             result = await self._session.execute(stmt)
             record = result.scalar_one_or_none()
+            if record is None:
+                raise NotFoundError(msg=f"{self.model.__name__} not found ")
             return record
         except SQLAlchemyError as e:
-            raise
+            raise TransactionError()
 
 
     async def find_all_by_filters(self, filters: dict = {}) -> list[T]:
@@ -44,9 +49,11 @@ class BaseDAO(Generic[T]):
             stmt = select(self.model).filter_by(**filters)
             result = await self._session.execute(stmt)
             records = result.scalars().all()
+            if records is None:
+                raise NotFoundError(msg=f"{self.model.__name__} not found ")
             return records
         except SQLAlchemyError as e:
-            raise
+            raise TransactionError()
 
 
     async def add_one_record(self, values: BaseModel) -> T:
@@ -56,8 +63,11 @@ class BaseDAO(Generic[T]):
             result = await self._session.execute(stmt.returning(self.model))
             record = result.scalar_one_or_none()
             return record
+        except IntegrityError as e:
+            if isinstance(e.orig, UniqueViolationError):
+                raise Duplicate(msg=f"{self.model.__name__} already exists")
         except SQLAlchemyError as e:
-            raise
+            raise TransactionError()
 
 
     async def add_many_records(self, values_list: list[BaseModel]) -> list[T]:
@@ -69,13 +79,15 @@ class BaseDAO(Generic[T]):
             result = await self._session.execute(stmt.returning(self.model))
             records = result.scalars().all()
             return records
+        except IntegrityError as e:
+            if isinstance(e.orig, UniqueViolationError):
+                raise Duplicate(msg=f"{self.model.__name__} already exists")
         except SQLAlchemyError as e:
-            raise
+            raise TransactionError()
 
 
     async def update_record(self, values: BaseModel, filters: dict = {}) -> T:
         values_dict = values.model_dump(exclude_unset=True)
-
         try:
             stmt = (
                 update(self.model)
@@ -85,9 +97,12 @@ class BaseDAO(Generic[T]):
             )
             result = await self._session.execute(stmt)
             await self._session.flush()
-            return result.scalar_one_or_none()
+            record = result.scalar_one_or_none()
+            if record is None:
+                raise NotFoundError(msg=f"{self.model.__name__} not found ")
+            return record
         except SQLAlchemyError as e:
-            raise 
+            raise TransactionError() 
 
 
     async def bulk_update(self, records: list[BaseModel]) -> int:
@@ -109,7 +124,7 @@ class BaseDAO(Generic[T]):
                 await self._session.flush()
                 return updated_count
         except SQLAlchemyError as e:
-            raise 
+            raise TransactionError() 
 
 
     async def delete_records(self, filters: dict = {}) -> int:
@@ -121,4 +136,13 @@ class BaseDAO(Generic[T]):
             await self._session.flush()
             return result.rowcount
         except SQLAlchemyError as e:
-            raise
+            raise TransactionError()
+
+    
+    async def check_existence(self, data_id: int) -> bool:
+            try:
+                stmt = select(exists().where(self.model.id == data_id))
+                result = await self._session.execute(stmt)
+                return result.scalar()
+            except SQLAlchemyError as e:
+                raise TransactionError()

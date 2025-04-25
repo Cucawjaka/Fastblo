@@ -4,6 +4,7 @@ from jose import jwt, JWTError
 from passlib.context import CryptContext
 
 from config import settings
+from errors.service_exeptions import InvalidTokenTypeError
 
 
 auth_data = settings.auth_data
@@ -56,15 +57,15 @@ def verify_token(token: str) -> dict:
     try:
         data = jwt.decode(token, auth_data["secret_key"], algorithms=[auth_data["algorithm"]])
         if not data or "sub" not in data:
-            raise ValueError("Неверный токен доступа")
+            raise InvalidTokenTypeError("Неверный токен доступа")
         
         expire = data.get("exp", None)
         if expire is None:
             raise ValueError("Некорректный токен доступа")
         if datetime.now(timezone.utc).timestamp() > expire:
-            raise ValueError("Токен не действует")
+            raise InvalidTokenTypeError("Токен не действует")
         return data
     except JWTError:
-        raise ValueError("Неверный токен доступа")
+        raise InvalidTokenTypeError("Неверный токен доступа")
     
 

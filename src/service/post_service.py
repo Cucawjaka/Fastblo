@@ -2,6 +2,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from schemas.post_schema import BasePost, PostResponse, PostSave
 from dao.post_dao import PostDAO
+from errors.data_exeptions import PostNotFoundError
+from errors.service_exeptions import PermissionDenied
 
 
 class PostService:
@@ -30,19 +32,19 @@ class PostService:
 
 
     async def update_post(self, user_id: int, post_id: int, post: BasePost) -> PostResponse:
-        post_exists = await self._post_dao.check_existence(post_id=post_id)
+        post_exists = await self._post_dao.check_existence(data_id=post_id)
         if not post_exists:
-            raise ValueError("Пост не найден")
+            raise PostNotFoundError(msg="Пост не найден")
         post_from_db = await self._post_dao.update_record(values=post, filters={"id": post_id, "user_id": user_id})
         if not post_from_db:
-            raise ValueError("Запрещенное действие")
+            raise PermissionDenied(msg="Запрещенное действие")
         return PostResponse.model_validate(post_from_db)
 
 
     async def delete_post(self, post_id: int, user_id: int) -> None:
-        post_exists = await self._post_dao.check_existence(post_id=post_id)
+        post_exists = await self._post_dao.check_existence(data_id=post_id)
         if not post_exists:
-            raise ValueError("Пост не найден")
+            raise PostNotFoundError(msg="Пост не найден")
         post_deleted = await self._post_dao.delete_records(filters={"id": post_id, "user_id": user_id})
         if post_deleted < 1:
-            raise ValueError("Запрещенное действие")
+            raise PermissionDenied(msg="Запрещенное действие")

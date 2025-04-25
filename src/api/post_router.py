@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 
 from dependencies.services_dep import (
     get_post_service_with_commmit,
@@ -9,6 +9,7 @@ from dependencies.services_dep import (
 from schemas.post_schema import PostResponse, BasePost
 from service.post_service import PostService
 from auth.dependencies import verify_current_user
+from errors.service_exeptions import PermissionDenied
 
 
 router = APIRouter(prefix="/posts", tags=["posts"])
@@ -31,7 +32,7 @@ async def get_post(
     return post
 
 
-@router.post("", response_model=PostResponse)
+@router.post("", response_model=PostResponse, status_code=201)
 async def create_post(
     post: BasePost,
     post_service: Annotated[PostService, Depends(get_post_service_with_commmit)],
@@ -60,3 +61,4 @@ async def delete_post(
 ):
     await post_service.delete_post(post_id=post_id, user_id=payload["sub"])
     return {"message": "Post was deleted"}
+    
