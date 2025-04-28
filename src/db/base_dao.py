@@ -3,11 +3,11 @@ from typing import Generic, TypeVar
 from asyncpg.exceptions import UniqueViolationError
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.exc import SQLAlchemyError, IntegrityError
+from sqlalchemy.exc import SQLAlchemyError, IntegrityError, MultipleResultsFound
 from sqlalchemy import select, update, delete, insert, exists
 
 from db.base import Base
-from errors.data_exeptions import NotFoundError, Duplicate, TransactionError
+from errors.data_exeptions import NotFoundError, Duplicate, TransactionError, IncorrectFilterAppliedError
 
 T = TypeVar("T", bound=Base)
 
@@ -49,7 +49,7 @@ class BaseDAO(Generic[T]):
             stmt = select(self.model).filter_by(**filters)
             result = await self._session.execute(stmt)
             records = result.scalars().all()
-            if records is None:
+            if not records:
                 raise NotFoundError(msg=f"{self.model.__name__} not found ")
             return records
         except SQLAlchemyError as e:
@@ -101,6 +101,8 @@ class BaseDAO(Generic[T]):
             if record is None:
                 raise NotFoundError(msg=f"{self.model.__name__} not found ")
             return record
+        except MultipleResultsFound as e:
+            raise IncorrectFilterAppliedError(msg="Обновлено слишком много записей")
         except SQLAlchemyError as e:
             raise TransactionError() 
 
@@ -116,13 +118,13 @@ class BaseDAO(Generic[T]):
                 update_data = {k: v for k, v in record_dict.items() if k != "id"}
                 stmt = (
                     update(self.model)
-                    .where(self.model.id == record_dict)
+                    .where(self.model.id == record_dict["id"])
                     .values(**update_data)
                 )
                 result = await self._session.execute(stmt)
                 updated_count += result.rowcount
                 await self._session.flush()
-                return updated_count
+            return updated_count
         except SQLAlchemyError as e:
             raise TransactionError() 
 

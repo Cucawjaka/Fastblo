@@ -19,3 +19,9 @@ class Duplicate(Exception):
 class TransactionError(Exception):
     """Ошибка транзакции базы данных"""
     pass
+
+
+class IncorrectFilterAppliedError(Exception):
+    """Обновляется слишком много записей"""
+    def __init__(self, msg: str | None = None):
+        self.msg = msg

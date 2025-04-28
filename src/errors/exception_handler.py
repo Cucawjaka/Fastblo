@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
-from errors.data_exeptions import NotFoundError, TransactionError
+from errors.data_exeptions import NotFoundError, TransactionError, IncorrectFilterAppliedError
 from errors.service_exeptions import (
     UserInactiveError,
     InvalidCredentialsError,
@@ -54,4 +54,11 @@ def register_exception_handler(app: FastAPI) -> None:
     async def invalid_token_error(request: Request, exc: InvalidTokenTypeError) -> JSONResponse:
         return JSONResponse(
             status_code=401, content={"message": exc.msg}
+        )
+    
+
+    @app.exception_handler(IncorrectFilterAppliedError)
+    async def incorrect_filters_error(request: Request, exc: IncorrectFilterAppliedError) -> JSONResponse:
+        return JSONResponse(
+            status_code=500, content={"message": exc.msg}
         )
