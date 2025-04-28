@@ -3,7 +3,7 @@ import re
 
 from pydantic import BaseModel, Field, EmailStr, ConfigDict, field_validator, model_validator
 
-from schemas.post_schema import PostResponse
+from src.schemas.post_schema import PostResponse
 
 
 class BaseUser(BaseModel):
@@ -37,7 +37,7 @@ class ChangePassword(BaseModel):
     @classmethod
     def validate_password(cls, value) -> str:
         if re.search(r"(?=.*\d)(?=.*\W)(?=.*[a-zA-Z])", value) is None:
-            raise Val(
+            raise ValueError(
                 "Пароль должен содержать хотя бы одну цифру и специальный символ"
             )
         return value

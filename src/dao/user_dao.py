@@ -2,9 +2,9 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import selectinload
 from sqlalchemy import update, delete, select
 
-from db.base_dao import BaseDAO
-from db.models import User, Post
-from errors.data_exeptions import UserNotFoundError, Duplicate, TransactionError
+from src.db.base_dao import BaseDAO
+from src.db.models import User, Post
+from src.errors.data_exeptions import UserNotFoundError, TransactionError
 
 
 class UserDAO(BaseDAO):

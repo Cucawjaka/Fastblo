@@ -6,8 +6,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError, MultipleResultsFound
 from sqlalchemy import select, update, delete, insert, exists
 
-from db.base import Base
-from errors.data_exeptions import NotFoundError, Duplicate, TransactionError, IncorrectFilterAppliedError
+from src.db.base import Base
+from src.errors.data_exeptions import NotFoundError, Duplicate, TransactionError, IncorrectFilterAppliedError
 
 T = TypeVar("T", bound=Base)
 

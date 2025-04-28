@@ -1,8 +1,8 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
-from errors.data_exeptions import NotFoundError, TransactionError, IncorrectFilterAppliedError
-from errors.service_exeptions import (
+from src.errors.data_exeptions import NotFoundError, TransactionError, IncorrectFilterAppliedError
+from src.errors.service_exeptions import (
     UserInactiveError,
     InvalidCredentialsError,
     UserDeletionIntegrityError,

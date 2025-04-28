@@ -1,9 +1,9 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from schemas.post_schema import BasePost, PostResponse, PostSave
-from dao.post_dao import PostDAO
-from errors.data_exeptions import PostNotFoundError
-from errors.service_exeptions import PermissionDenied
+from src.schemas.post_schema import BasePost, PostResponse, PostSave
+from src.dao.post_dao import PostDAO
+from src.errors.data_exeptions import PostNotFoundError
+from src.errors.service_exeptions import PermissionDenied
 
 
 class PostService:

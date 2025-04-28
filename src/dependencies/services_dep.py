@@ -1,9 +1,9 @@
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from dependencies.dao_dep import get_session_with_commit, get_session_without_commit
-from service.post_service import PostService
-from service.user_service import UserService
+from src.dependencies.dao_dep import get_session_with_commit, get_session_without_commit
+from src.service.post_service import PostService
+from src.service.user_service import UserService
 
 
 async def get_post_service_with_commmit(

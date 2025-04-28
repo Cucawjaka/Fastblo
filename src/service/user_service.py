@@ -1,16 +1,16 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from schemas.user_schema import (
+from src.schemas.user_schema import (
     ChangePassword,
     UserResponse,
     UserWithPosts,
     ChangeUsername,
     UserUpdate,
 )
-from db.models import User
-from dao.user_dao import UserDAO
-from auth.utils import verify_password, create_password_hash
-from errors.service_exeptions import UserInactiveError, InvalidCredentialsError, UserDeletionIntegrityError
+from src.db.models import User
+from src.dao.user_dao import UserDAO
+from src.auth.utils import verify_password, create_password_hash
+from src.errors.service_exeptions import UserInactiveError, InvalidCredentialsError, UserDeletionIntegrityError
 
 
 class UserService:

@@ -4,9 +4,9 @@ from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.responses import Response
 
-from .dependencies import get_auth_service_with_commit, verify_current_user, get_refresh_token
-from .schemas import UserRegister, UserLogin, TokenResponse
-from .service import AuthService
+from src.auth.dependencies import get_auth_service_with_commit, verify_current_user, get_refresh_token
+from src.auth.schemas import UserRegister, UserLogin, TokenResponse
+from src.auth.service import AuthService
 
 
 router = APIRouter(prefix="/auth", tags=["User Auth"])

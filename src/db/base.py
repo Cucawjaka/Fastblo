@@ -4,7 +4,7 @@ from sqlalchemy import func, Integer, TIMESTAMP
 from sqlalchemy.ext.asyncio import AsyncAttrs, create_async_engine, async_sessionmaker
 from sqlalchemy.orm import DeclarativeBase, declared_attr, Mapped, mapped_column
 
-from config import settings
+from src.config import settings
 
 DATABASE_URL = settings.db_url
 
@@ -21,5 +21,6 @@ class Base(AsyncAttrs, DeclarativeBase):
     updated_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now())
 
     @declared_attr
+    @classmethod
     def __tablename__(cls) -> str:
         return cls.__name__.lower() + 's'

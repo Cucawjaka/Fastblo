@@ -3,8 +3,8 @@ from datetime import datetime, timedelta, timezone
 from jose import jwt, JWTError
 from passlib.context import CryptContext
 
-from config import settings
-from errors.service_exeptions import InvalidTokenTypeError
+from src.config import settings
+from src.errors.service_exeptions import InvalidTokenTypeError
 
 
 auth_data = settings.auth_data

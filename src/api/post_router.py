@@ -1,15 +1,14 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 
-from dependencies.services_dep import (
+from src.dependencies.services_dep import (
     get_post_service_with_commmit,
     get_post_service_without_commmit,
 )
-from schemas.post_schema import PostResponse, BasePost
-from service.post_service import PostService
-from auth.dependencies import verify_current_user
-from errors.service_exeptions import PermissionDenied
+from src.schemas.post_schema import PostResponse, BasePost
+from src.service.post_service import PostService
+from src.auth.dependencies import verify_current_user
 
 
 router = APIRouter(prefix="/posts", tags=["posts"])

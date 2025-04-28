@@ -3,7 +3,7 @@ import re
 
 from pydantic import BaseModel, EmailStr, Field, field_validator, model_validator
 
-from schemas.user_schema import BaseUser
+from src.schemas.user_schema import BaseUser
 
 class UserLogin(BaseModel):  # вход
     email: EmailStr = Field(...)

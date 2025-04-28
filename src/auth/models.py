@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import String, ForeignKey
 
-from db.base import Base
+from src.db.base import Base
 
 
 class Token(Base):

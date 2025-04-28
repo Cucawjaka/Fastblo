@@ -7,7 +7,7 @@ from sqlalchemy import (
     text,
 )
 
-from .base import Base
+from src.db.base import Base
 
 class User(Base):
     username: Mapped[str] = mapped_column(String(50), unique=True)

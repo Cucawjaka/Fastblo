@@ -1,22 +1,22 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from db.models import User
-from dao.user_dao import UserDAO
-from errors.service_exeptions import InvalidCredentialsError, InvalidTokenTypeError, TokenRefreshError
-from errors.data_exeptions import UserNotFoundError
-from .utils import (
+from src.db.models import User
+from src.dao.user_dao import UserDAO
+from src.errors.service_exeptions import InvalidCredentialsError, InvalidTokenTypeError, TokenRefreshError
+from src.errors.data_exeptions import UserNotFoundError
+from src.auth.utils import (
     create_password_hash,
     verify_password,
     verify_token,
     create_refresh_and_access_tokens
 )
-from .schemas import (
+from src.auth.schemas import (
     UserLogin,
     UserRegister,
     UserSave,
     RefreshTokenSave,
 )
-from .dao import TokenDAO
+from src.auth.dao import TokenDAO
 
 
 class AuthService:

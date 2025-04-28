@@ -4,9 +4,9 @@ from fastapi import Depends, Request
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from errors.service_exeptions import PermissionDenied
-from dependencies.dao_dep import get_session_with_commit
-from .service import AuthService
+from src.errors.service_exeptions import PermissionDenied
+from src.dependencies.dao_dep import get_session_with_commit
+from src.auth.service import AuthService
 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")

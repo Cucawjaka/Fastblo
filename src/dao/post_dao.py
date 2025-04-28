@@ -1,6 +1,5 @@
-from db.base_dao import BaseDAO
-from db.models import Post
-
+from src.db.base_dao import BaseDAO
+from src.db.models import Post
 
 
 class PostDAO(BaseDAO):

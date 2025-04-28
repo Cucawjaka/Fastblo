@@ -2,13 +2,13 @@ from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends
 
-from dependencies.services_dep import (
+from src.dependencies.services_dep import (
     get_user_service_with_commit,
     get_user_service_without_commit,
 )
-from schemas.user_schema import UserResponse, UserWithPosts, ChangeUsername, ChangePassword
-from service.user_service import UserService
-from auth.dependencies import verify_current_user, check_owner
+from src.schemas.user_schema import UserResponse, UserWithPosts, ChangeUsername, ChangePassword
+from src.service.user_service import UserService
+from src.auth.dependencies import verify_current_user, check_owner
 
 
 router = APIRouter(prefix="/users", tags=["users"])
