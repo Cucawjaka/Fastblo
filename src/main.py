@@ -7,8 +7,6 @@ from src.api.user_router import router as user_router
 from src.errors.exception_handler import register_exception_handler
 
 
-
-
 app = FastAPI(title="FastBlo")
 
 register_exception_handler(app=app)

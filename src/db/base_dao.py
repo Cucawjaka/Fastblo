@@ -7,7 +7,7 @@ from sqlalchemy.exc import SQLAlchemyError, IntegrityError, MultipleResultsFound
 from sqlalchemy import select, update, delete, insert, exists
 
 from src.db.base import Base
-from src.errors.data_exeptions import NotFoundError, Duplicate, TransactionError, IncorrectFilterAppliedError
+from src.errors.data_exeptions import Duplicate, TransactionError, IncorrectFilterAppliedError
 
 T = TypeVar("T", bound=Base)
 
@@ -25,8 +25,6 @@ class BaseDAO(Generic[T]):
             stmt = select(self.model).filter_by(id=data_id)
             result = await self._session.execute(stmt)
             record = result.scalar_one_or_none()
-            if record is None:
-                raise NotFoundError(msg=f"{self.model.__name__} not found ")
             return record
         except SQLAlchemyError as e:
             raise TransactionError()
@@ -37,8 +35,6 @@ class BaseDAO(Generic[T]):
             stmt = select(self.model).filter_by(**filters)
             result = await self._session.execute(stmt)
             record = result.scalar_one_or_none()
-            if record is None:
-                raise NotFoundError(msg=f"{self.model.__name__} not found ")
             return record
         except SQLAlchemyError as e:
             raise TransactionError()
@@ -49,8 +45,6 @@ class BaseDAO(Generic[T]):
             stmt = select(self.model).filter_by(**filters)
             result = await self._session.execute(stmt)
             records = result.scalars().all()
-            if not records:
-                raise NotFoundError(msg=f"{self.model.__name__} not found ")
             return records
         except SQLAlchemyError as e:
             raise TransactionError()
@@ -98,8 +92,6 @@ class BaseDAO(Generic[T]):
             result = await self._session.execute(stmt)
             await self._session.flush()
             record = result.scalar_one_or_none()
-            if record is None:
-                raise NotFoundError(msg=f"{self.model.__name__} not found ")
             return record
         except MultipleResultsFound as e:
             raise IncorrectFilterAppliedError(msg="Обновлено слишком много записей")

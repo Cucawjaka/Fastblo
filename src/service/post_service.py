@@ -23,11 +23,15 @@ class PostService:
 
     async def get_all_posts(self) -> list[PostResponse]:
         posts_from_db = await self._post_dao.find_all_by_filters()
+        if not posts_from_db:
+            raise PostNotFoundError(msg="Посты не найдены")
         return [PostResponse.model_validate(post) for post in posts_from_db]
 
 
     async def get_post(self, post_id: int) -> PostResponse:
         post_from_db = await self._post_dao.find_one_or_none_by_id(data_id=post_id)
+        if not post_from_db:
+            raise PostNotFoundError(msg="Пост не найдены")
         return PostResponse.model_validate(post_from_db)
 
 

@@ -2,7 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.db.models import User
 from src.dao.user_dao import UserDAO
-from src.errors.service_exeptions import InvalidCredentialsError, InvalidTokenTypeError, TokenRefreshError
+from src.errors.service_exeptions import InvalidCredentialsError, InvalidTokenTypeError, TokenRefreshError, UserInactiveError
 from src.errors.data_exeptions import UserNotFoundError
 from src.auth.utils import (
     create_password_hash,
@@ -72,8 +72,10 @@ class AuthService:
             raise InvalidTokenTypeError("Неверный тип токена")
         
         user_from_db = await self._user_dao.find_one_or_none_by_id(data_id=int(user_info["sub"]))
-        if  not user_from_db.is_active:
+        if  not user_from_db:
             raise UserNotFoundError(msg="Такого пользователя не существует")
+        if not user_from_db.is_active:
+            raise UserInactiveError(msg=f"User is inactive")
 
         new_tokens_dict = create_refresh_and_access_tokens(
             user_id=user_from_db.id, username=user_from_db.username

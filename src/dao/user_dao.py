@@ -29,8 +29,6 @@ class UserDAO(BaseDAO):
             stmt = select(self.model).options(selectinload(self.model.posts)).where(self.model.id == user_id)
             result = await self._session.execute(stmt)
             record = result.scalar_one_or_none()
-            if record is None:
-                raise UserNotFoundError(msg=f"{self.model.__name__} not found ")
             return record
         except SQLAlchemyError as e:
             raise TransactionError()

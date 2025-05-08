@@ -2,7 +2,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 class BasePost(BaseModel):
-    title: str = Field(..., min_length=2, max_length=40)
+    title: str = Field(..., min_length=1, max_length=40)
     text: str = Field(..., min_length=1)
 
     model_config = ConfigDict(from_attributes=True)
